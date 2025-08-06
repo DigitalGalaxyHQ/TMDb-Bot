@@ -4,7 +4,7 @@ A Telegram bot that allows users to search for movies or TV shows using the TMDb
 
 ## Developer
 
-Developed by [Saikat](https://github.com/saikatwtf)
+Developed by [DigitalGalaxyHQ](https://github.com/DigitalGalaxyHQ)
 
 ## Features
 
@@ -62,4 +62,4 @@ For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md)
 
 ## License
 
-This project is maintained by [Saikat](https://github.com/saikatwtf). See the LICENSE file for details.
+This project is maintained by [DigitalGalaxyHQ](https://github.com/DigitalGalaxyHQ). See the LICENSE file for details.
