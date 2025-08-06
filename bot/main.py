@@ -1,5 +1,5 @@
 import logging
-from telegram.ext import Updater
+from telegram.ext import Application
 from .handlers import setup_handlers
 from config import TELEGRAM_TOKEN
 
@@ -11,16 +11,15 @@ logger = logging.getLogger(__name__)
 
 def start_bot():
     """Start the Telegram bot."""
-    updater = Updater(TELEGRAM_TOKEN)
-    dispatcher = updater.dispatcher
+    # Create the Application
+    application = Application.builder().token(TELEGRAM_TOKEN).build()
     
     # Setup all handlers
-    setup_handlers(dispatcher)
+    setup_handlers(application)
     
     # Start the Bot
-    updater.start_polling()
-    logger.info("Bot started and running...")
-    updater.idle()
+    logger.info("Bot starting...")
+    application.run_polling()
 
 if __name__ == '__main__':
     start_bot()
