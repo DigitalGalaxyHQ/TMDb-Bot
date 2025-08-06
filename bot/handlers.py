@@ -2,9 +2,9 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import (
     CommandHandler,
     CallbackQueryHandler,
-    CallbackContext,
+    ContextTypes,  # Changed from CallbackContext
     MessageHandler,
-    Filters
+    filters  # Changed from Filters
 )
 from .tmdb_api import search_tmdb, get_media_details, get_poster_urls
 
