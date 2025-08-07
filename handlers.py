@@ -6,7 +6,7 @@ from telegram.ext import (
     MessageHandler,
     filters
 )
-from .tmdb_api import search_tmdb, get_media_details, get_poster_urls
+from tmdb_api import search_tmdb, get_media_details, get_poster_urls
 import logging
 
 logger = logging.getLogger(__name__)
