@@ -26,7 +26,7 @@ def get_media_details(tmdb_id: str, media_type: str) -> dict:
     return response.json()
 
 def get_poster_urls(tmdb_id: str, media_type: str) -> dict:
-    """Get all available poster URLs for a movie/TV show."""
+    """Get all available poster URLs with multiple images for each type."""
     if media_type == 'movie':
         images_url = f'{TMDB_BASE_URL}/movie/{tmdb_id}/images?api_key={TMDB_API_KEY}'
     else:
@@ -35,32 +35,58 @@ def get_poster_urls(tmdb_id: str, media_type: str) -> dict:
     response = requests.get(images_url)
     if response.status_code != 200:
         return {
-            'english': {'landscape': None, 'portrait': None},
-            'hindi': {'landscape': None, 'portrait': None}
+            'english': {'landscape': [], 'portrait': []},
+            'hindi': {'landscape': [], 'portrait': []}
         }
     
     images_data = response.json()
+    
     return {
         'english': {
-            'landscape': find_landscape_image(images_data.get('backdrops', []), 'en'),
-            'portrait': find_portrait_image(images_data.get('posters', []), 'en')
+            'landscape': get_all_images(images_data.get('backdrops', []), 'en', 'landscape'),
+            'portrait': get_all_images(images_data.get('posters', []), 'en', 'portrait')
         },
         'hindi': {
-            'landscape': find_landscape_image(images_data.get('backdrops', []), 'hi'),
-            'portrait': find_portrait_image(images_data.get('posters', []), 'hi')
+            'landscape': get_all_images(images_data.get('backdrops', []), 'hi', 'landscape'),
+            'portrait': get_all_images(images_data.get('posters', []), 'hi', 'portrait')
         }
     }
 
-def find_landscape_image(images: list, language: str) -> str:
-    """Find a landscape image (backdrop) for the specified language."""
-    for image in images:
-        if image.get('iso_639_1') == language and image.get('aspect_ratio', 0) >= 1.7:
-            return f"{TMDB_IMAGE_BASE_URL}{image['file_path']}"
-    return None
+def get_logos(tmdb_id: str, media_type: str) -> list:
+    """Get all logo images for a movie/TV show."""
+    if media_type == 'movie':
+        images_url = f'{TMDB_BASE_URL}/movie/{tmdb_id}/images?api_key={TMDB_API_KEY}'
+    else:
+        images_url = f'{TMDB_BASE_URL}/tv/{tmdb_id}/images?api_key={TMDB_API_KEY}'
+    
+    response = requests.get(images_url)
+    if response.status_code != 200:
+        return []
+    
+    logos = []
+    for logo in response.json().get('logos', []):
+        if logo.get('iso_639_1') in ('en', None):  # English or language-neutral
+            logos.append(f"{TMDB_IMAGE_BASE_URL}/original{logo['file_path']}")
+    
+    return logos[:5]  # Return max 5 logos
 
-def find_portrait_image(images: list, language: str) -> str:
-    """Find a portrait image (poster) for the specified language."""
+def get_all_images(images: list, language: str, image_type: str) -> list:
+    """Get all images of specified type and language."""
+    result = []
     for image in images:
-        if image.get('iso_639_1') == language and image.get('aspect_ratio', 1) < 1.0:
-            return f"{TMDB_IMAGE_BASE_URL}{image['file_path']}"
-    return None
+        # Include language-specific or language-neutral images
+        if image.get('iso_639_1') in (language, None):
+            if image_type == 'landscape' and image.get('aspect_ratio', 0) >= 1.7:
+                result.append(f"{TMDB_IMAGE_BASE_URL}/original{image['file_path']}")
+            elif image_type == 'portrait' and image.get('aspect_ratio', 1) < 1.0:
+                result.append(f"{TMDB_IMAGE_BASE_URL}/original{image['file_path']}")
+    
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_images = []
+    for url in result:
+        if url not in seen:
+            seen.add(url)
+            unique_images.append(url)
+    
+    return unique_images[:10]  # Return max 10 images
