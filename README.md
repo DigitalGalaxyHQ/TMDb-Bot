@@ -1,4 +1,3 @@
-```markdown
 # 🎬 TMDB Telegram Bot
 
 A Telegram bot that searches TMDB and displays movie/TV show posters in landscape and portrait formats.
