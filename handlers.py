@@ -6,7 +6,7 @@ from telegram.ext import (
     MessageHandler,
     filters
 )
-from tmdb_api import search_tmdb, get_media_details, get_poster_urls
+from tmdb_api import search_tmdb, get_media_details, get_poster_urls, get_logos
 import logging
 
 logger = logging.getLogger(__name__)
@@ -89,40 +89,56 @@ async def handle_button_press(update: Update, context: ContextTypes.DEFAULT_TYPE
         
         # Get all poster URLs
         poster_urls = get_poster_urls(tmdb_id, media_type)
+        logos = get_logos(tmdb_id, media_type)
         
         # Edit the original message to remove buttons
-        await query.edit_message_text(f"Fetching posters for: {display_text}")
+        await query.edit_message_text(f"🎬 *{display_text}*", parse_mode='Markdown')
         
-        # Send all available posters
-        await send_posters(update, display_text, poster_urls)
+        # Send all available posters as direct links
+        await send_links(update, display_text, poster_urls, logos)
 
-async def send_posters(update: Update, title: str, poster_urls: dict):
-    """Send all available posters to the chat."""
-    # English posters
+async def send_links(update: Update, title: str, poster_urls: dict, logos: list):
+    """Send all available image links to the chat."""
+    message = f"🎬 *{title}*\n\n"
+    
+    # English Landscapes
     if poster_urls['english']['landscape']:
-        await update.callback_query.message.reply_photo(
-            photo=poster_urls['english']['landscape'],
-            caption=f"{title} - English Landscape"
-        )
+        message += "*English Landscapes:*\n"
+        for url in poster_urls['english']['landscape'][:10]:
+            message += f"{url}\n"
+        message += "\n"
     
+    # English Portraits
     if poster_urls['english']['portrait']:
-        await update.callback_query.message.reply_photo(
-            photo=poster_urls['english']['portrait'],
-            caption=f"{title} - English Portrait"
-        )
+        message += "*English Posters:*\n"
+        for url in poster_urls['english']['portrait'][:10]:
+            message += f"{url}\n"
+        message += "\n"
     
-    # Hindi posters
+    # Hindi Landscapes
     if poster_urls['hindi']['landscape']:
-        await update.callback_query.message.reply_photo(
-            photo=poster_urls['hindi']['landscape'],
-            caption=f"{title} - Hindi Landscape"
-        )
+        message += "*Hindi Landscapes:*\n"
+        for url in poster_urls['hindi']['landscape'][:10]:
+            message += f"{url}\n"
+        message += "\n"
     
+    # Hindi Portraits
     if poster_urls['hindi']['portrait']:
-        await update.callback_query.message.reply_photo(
-            photo=poster_urls['hindi']['portrait'],
-            caption=f"{title} - Hindi Portrait"
-        )
+        message += "*Hindi Posters:*\n"
+        for url in poster_urls['hindi']['portrait'][:10]:
+            message += f"{url}\n"
+        message += "\n"
+    
+    # Logos
+    if logos:
+        message += "*English Logos:*\n"
+        for url in logos[:5]:
+            message += f"{url}\n"
+    
+    await update.callback_query.message.reply_text(
+        text=message,
+        parse_mode='Markdown'
+    )
 
 async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Log errors caused by updates."""
@@ -132,4 +148,4 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         await update.effective_message.reply_text(
             'An error occurred while processing your request. '
             'The developer has been notified.'
-  )
+        )
