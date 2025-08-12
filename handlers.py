@@ -24,6 +24,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
         '🎬 Welcome to TMDB Poster Bot!\n\n'
         'Search for movies/TV shows and get their posters.\n\n'
+        'Help: /help \n'
         'Usage: /tmdb <query>\n'
         'Example: /tmdb The Dark Knight'
     )
