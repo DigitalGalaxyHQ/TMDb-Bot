@@ -55,7 +55,7 @@ TMDB_API_KEY=your_tmdb_api_key
 
 ## 💙 Credits
 
-**Developed by:** [@DigitalGalaxyHQ](https://t.me/DigitalGalaxyHQ)  
+**Developed by:** [DigitalGalaxyHQ](https://GitHub.com/DigitalGalaxyHQ)  
 **Official Telegram Channel:** [DigitalGalaxyHQ](https://t.me/DigitalGalaxyHQ)  
 
 [![DigitalGalaxyHQ](https://img.shields.io/badge/Join-Digital%20Galaxy-blue)](https://t.me/DigitalGalaxyHQ)
