@@ -2,7 +2,7 @@
 
 A Telegram bot that searches TMDB and displays movie/TV show posters in landscape and portrait formats.
 
-[![DigitalGalaxyHQ Channel](https://img.shields.io/badge/Join-Telegram Channel-blue)](https://t.me/DigitalGalaxyHQ)
+[![DigitalGalaxyHQ Channel](https://img.shields.io/badge/Join-Telegram-Channel-blue)](https://t.me/DigitalGalaxyHQ)
 
 ## ✨ Features
 
@@ -58,6 +58,6 @@ TMDB_API_KEY=your_tmdb_api_key
 **Developed by:** [DigitalGalaxyHQ](https://GitHub.com/DigitalGalaxyHQ)  
 **Official Telegram Channel:** [DigitalGalaxyHQ](https://t.me/DigitalGalaxyHQ)  
 
-[![DigitalGalaxyHQ](https://img.shields.io/badge/Join-Telegram Channel-blue)](https://t.me/DigitalGalaxyHQ)
+[![DigitalGalaxyHQ](https://img.shields.io/badge/Join-Telegram-Channel-blue)](https://t.me/DigitalGalaxyHQ)
 ```
  
