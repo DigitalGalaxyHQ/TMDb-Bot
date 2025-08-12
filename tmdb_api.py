@@ -26,7 +26,7 @@ def get_media_details(tmdb_id: str, media_type: str) -> dict:
     return response.json()
 
 def get_poster_urls(tmdb_id: str, media_type: str) -> dict:
-    """Get all available poster URLs with multiple images for each type."""
+    """Get all available poster URLs with proper image sizes."""
     if media_type == 'movie':
         images_url = f'{TMDB_BASE_URL}/movie/{tmdb_id}/images?api_key={TMDB_API_KEY}'
     else:
@@ -41,19 +41,41 @@ def get_poster_urls(tmdb_id: str, media_type: str) -> dict:
     
     images_data = response.json()
     
-    return {
+    result = {
         'english': {
-            'landscape': get_all_images(images_data.get('backdrops', []), 'en', 'landscape'),
-            'portrait': get_all_images(images_data.get('posters', []), 'en', 'portrait')
+            'landscape': [],
+            'portrait': []
         },
         'hindi': {
-            'landscape': get_all_images(images_data.get('backdrops', []), 'hi', 'landscape'),
-            'portrait': get_all_images(images_data.get('posters', []), 'hi', 'portrait')
+            'landscape': [],
+            'portrait': []
         }
     }
+    
+    # Process backdrops (landscape)
+    for backdrop in images_data.get('backdrops', []):
+        if backdrop.get('iso_639_1') in ('en', None) and backdrop.get('aspect_ratio', 0) >= 1.7:
+            result['english']['landscape'].append(f"{TMDB_IMAGE_BASE_URL}/w1280{backdrop['file_path']}")
+        elif backdrop.get('iso_639_1') == 'hi' and backdrop.get('aspect_ratio', 0) >= 1.7:
+            result['hindi']['landscape'].append(f"{TMDB_IMAGE_BASE_URL}/w1280{backdrop['file_path']}")
+    
+    # Process posters (portrait)
+    for poster in images_data.get('posters', []):
+        if poster.get('iso_639_1') in ('en', None) and poster.get('aspect_ratio', 1) < 1.0:
+            result['english']['portrait'].append(f"{TMDB_IMAGE_BASE_URL}/w780{poster['file_path']}")
+        elif poster.get('iso_639_1') == 'hi' and poster.get('aspect_ratio', 1) < 1.0:
+            result['hindi']['portrait'].append(f"{TMDB_IMAGE_BASE_URL}/w780{poster['file_path']}")
+    
+    # Remove duplicates
+    for lang in result:
+        for img_type in result[lang]:
+            seen = set()
+            result[lang][img_type] = [x for x in result[lang][img_type] if not (x in seen or seen.add(x))][:10]
+    
+    return result
 
 def get_logos(tmdb_id: str, media_type: str) -> list:
-    """Get all logo images for a movie/TV show."""
+    """Get logo images if available."""
     if media_type == 'movie':
         images_url = f'{TMDB_BASE_URL}/movie/{tmdb_id}/images?api_key={TMDB_API_KEY}'
     else:
@@ -66,27 +88,6 @@ def get_logos(tmdb_id: str, media_type: str) -> list:
     logos = []
     for logo in response.json().get('logos', []):
         if logo.get('iso_639_1') in ('en', None):  # English or language-neutral
-            logos.append(f"{TMDB_IMAGE_BASE_URL}/original{logo['file_path']}")
+            logos.append(f"{TMDB_IMAGE_BASE_URL}/w300{logo['file_path']}")
     
-    return logos[:5]  # Return max 5 logos
-
-def get_all_images(images: list, language: str, image_type: str) -> list:
-    """Get all images of specified type and language."""
-    result = []
-    for image in images:
-        # Include language-specific or language-neutral images
-        if image.get('iso_639_1') in (language, None):
-            if image_type == 'landscape' and image.get('aspect_ratio', 0) >= 1.7:
-                result.append(f"{TMDB_IMAGE_BASE_URL}/original{image['file_path']}")
-            elif image_type == 'portrait' and image.get('aspect_ratio', 1) < 1.0:
-                result.append(f"{TMDB_IMAGE_BASE_URL}/original{image['file_path']}")
-    
-    # Remove duplicates while preserving order
-    seen = set()
-    unique_images = []
-    for url in result:
-        if url not in seen:
-            seen.add(url)
-            unique_images.append(url)
-    
-    return unique_images[:10]  # Return max 10 images
+    return list(dict.fromkeys(logos))[:5]  # Remove duplicates, max 5 logos
