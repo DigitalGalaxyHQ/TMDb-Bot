@@ -33,7 +33,7 @@ def get_poster_urls(tmdb_id: str, media_type: str) -> dict:
     for backdrop in images_data.get('backdrops', []):
         if backdrop.get('aspect_ratio', 0) >= 1.7:  # Landscape
             lang = backdrop.get('iso_639_1')
-            url = f"{TMDB_IMAGE_BASE_URL}/original{backdrop['file_path']}"
+            url = f"{TMDB_IMAGE_BASE_URL}/{backdrop['file_path']}"
             if lang == 'en' or lang is None:
                 result['english']['landscape'].append(url)
             elif lang == 'hi':
@@ -42,7 +42,7 @@ def get_poster_urls(tmdb_id: str, media_type: str) -> dict:
     for poster in images_data.get('posters', []):
         if poster.get('aspect_ratio', 1) < 1.0:  # Portrait
             lang = poster.get('iso_639_1')
-            url = f"{TMDB_IMAGE_BASE_URL}/original{poster['file_path']}"
+            url = f"{TMDB_IMAGE_BASE_URL}/{poster['file_path']}"
             if lang == 'en' or lang is None:
                 result['english']['portrait'].append(url)
             elif lang == 'hi':
@@ -67,6 +67,6 @@ def get_logos(tmdb_id: str, media_type: str) -> list:
     logos = []
     for logo in response.json().get('logos', []):
         if logo.get('iso_639_1') in ('en', None):  # English or language-neutral
-            logos.append(f"{TMDB_IMAGE_BASE_URL}/original{logo['file_path']}")
+            logos.append(f"{TMDB_IMAGE_BASE_URL}/{logo['file_path']}")
     
     return list(dict.fromkeys(logos))[:5]  # Remove duplicates, max 5 logos
