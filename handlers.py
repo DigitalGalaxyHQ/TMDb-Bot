@@ -99,42 +99,30 @@ async def handle_button_press(update: Update, context: ContextTypes.DEFAULT_TYPE
         await send_links(update, display_text, poster_urls, logos)
 
 async def send_links(update: Update, title: str, poster_urls: dict, logos: list):
-    """Send all available image links to the chat."""
+    """Send formatted links with official posters first."""
     message = f"🎬 *{title}*\n\n"
     
     # English Landscapes
     if poster_urls['english']['landscape']:
-        message += "*English Landscapes:*\n"
-        for url in poster_urls['english']['landscape'][:10]:
-            message += f"{url}\n"
+        message += "*Official English Landscapes:*\n"
+        message += "\n".join(poster_urls['english']['landscape'][:3]) + "\n"
+        if len(poster_urls['english']['landscape']) > 3:
+            message += "*Other English Landscapes:*\n"
+            message += "\n".join(poster_urls['english']['landscape'][3:10]) + "\n"
         message += "\n"
     
     # English Portraits
     if poster_urls['english']['portrait']:
-        message += "*English Posters:*\n"
-        for url in poster_urls['english']['portrait'][:10]:
-            message += f"{url}\n"
-        message += "\n"
-    
-    # Hindi Landscapes
-    if poster_urls['hindi']['landscape']:
-        message += "*Hindi Landscapes:*\n"
-        for url in poster_urls['hindi']['landscape'][:10]:
-            message += f"{url}\n"
-        message += "\n"
-    
-    # Hindi Portraits
-    if poster_urls['hindi']['portrait']:
-        message += "*Hindi Posters:*\n"
-        for url in poster_urls['hindi']['portrait'][:10]:
-            message += f"{url}\n"
-        message += "\n"
+        message += "*Official English Posters:*\n"
+        message += "\n".join(poster_urls['english']['portrait'][:3]) + "\n"
+        if len(poster_urls['english']['portrait']) > 3:
+            message += "*Other English Posters:*\n"
+            message += "\n".join(poster_urls['english']['portrait'][3:10]) + "\n"
     
     # Logos
     if logos:
-        message += "*English Logos:*\n"
-        for url in logos[:5]:
-            message += f"{url}\n"
+        message += "\n*Official Logos:*\n"
+        message += "\n".join(logos[:5])
     
     await update.callback_query.message.reply_text(
         text=message,
