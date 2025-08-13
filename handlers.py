@@ -116,40 +116,50 @@ async def handle_button_press(update: Update, context: ContextTypes.DEFAULT_TYPE
         await handle_error(update, e)
 
 async def send_links(update: Update, title: str, poster_urls: dict, logos: list):
-    """Send formatted links with official posters first."""
+    """Send formatted links with thumbnail and clickable URLs."""
     try:
-        message = f"🎬 *{title}*\n\n"
+        # Send thumbnail first if available
+        if poster_urls.get('thumbnail'):
+            await update.callback_query.message.reply_photo(
+                photo=poster_urls['thumbnail'],
+                caption=f"*{title}*",
+                parse_mode='Markdown'
+            )
 
+        message = ""
+        
         # English Landscapes
         if poster_urls['english']['landscape']:
             message += "*English Landscapes:*\n"
-            message += "\n".join([f"`{url}`" for url in poster_urls['english']['landscape']]) + "\n\n"
+            message += "\n".join([f"'{url}'" for url in poster_urls['english']['landscape']]) + "\n\n"
 
         # English Portraits
         if poster_urls['english']['portrait']:
             message += "*English Posters:*\n"
-            message += "\n".join([f"`{url}`" for url in poster_urls['english']['portrait']]) + "\n\n"
+            message += "\n".join([f"'{url}'" for url in poster_urls['english']['portrait']]) + "\n\n"
 
         # Hindi Landscapes
         if poster_urls['hindi']['landscape']:
             message += "*Hindi Landscapes:*\n"
-            message += "\n".join([f"`{url}`" for url in poster_urls['hindi']['landscape']]) + "\n\n"
+            message += "\n".join([f"'{url}'" for url in poster_urls['hindi']['landscape']]) + "\n\n"
 
         # Hindi Portraits
         if poster_urls['hindi']['portrait']:
             message += "*Hindi Posters:*\n"
-            message += "\n".join([f"`{url}`" for url in poster_urls['hindi']['portrait']]) + "\n\n"
+            message += "\n".join([f"'{url}'" for url in poster_urls['hindi']['portrait']]) + "\n\n"
 
         # Logos
         if logos:
             message += "*Logos:*\n"
-            message += "\n".join([f"`{url}`" for url in logos])
+            message += "\n".join([f"'{url}'" for url in logos])
 
-        await update.callback_query.message.reply_text(
-            text=message,
-            parse_mode='Markdown',
-            disable_web_page_preview=False
-        )
+        if message:
+            await update.callback_query.message.reply_text(
+                text=message,
+                parse_mode='Markdown',
+               disable_web_page_preview=False
+            )
+            
     except Exception as e:
         logger.error(f"Error in send_links: {e}")
         await handle_error(update, e)
