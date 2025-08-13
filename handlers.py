@@ -102,8 +102,8 @@ async def handle_button_press(update: Update, context: ContextTypes.DEFAULT_TYPE
             if year:
                 display_text += f" ({year})"
 
-            # Get all poster URLs
-            poster_urls = get_poster_urls(tmdb_id, media_type)
+            # Get all poster URLs - pass only required arguments
+            poster_urls = get_poster_urls(tmdb_id, media_type)  # Removed title parameter
             logos = get_logos(tmdb_id, media_type)
 
             # Edit the original message to remove buttons
@@ -123,27 +123,27 @@ async def send_links(update: Update, title: str, poster_urls: dict, logos: list)
         # English Landscapes
         if poster_urls['english']['landscape']:
             message += "*English Landscapes:*\n"
-            message += "\n".join(poster_urls['english']['landscape']) + "\n\n"
+            message += "\n".join([f"`{url}`" for url in poster_urls['english']['landscape']]) + "\n\n"
 
         # English Portraits
         if poster_urls['english']['portrait']:
             message += "*English Posters:*\n"
-            message += "\n".join(poster_urls['english']['portrait']) + "\n\n"
+            message += "\n".join([f"`{url}`" for url in poster_urls['english']['portrait']]) + "\n\n"
 
         # Hindi Landscapes
         if poster_urls['hindi']['landscape']:
             message += "*Hindi Landscapes:*\n"
-            message += "\n".join(poster_urls['hindi']['landscape']) + "\n\n"
+            message += "\n".join([f"`{url}`" for url in poster_urls['hindi']['landscape']]) + "\n\n"
 
         # Hindi Portraits
         if poster_urls['hindi']['portrait']:
             message += "*Hindi Posters:*\n"
-            message += "\n".join(poster_urls['hindi']['portrait']) + "\n\n"
+            message += "\n".join([f"`{url}`" for url in poster_urls['hindi']['portrait']]) + "\n\n"
 
         # Logos
         if logos:
             message += "*Logos:*\n"
-            message += "\n".join(logos)
+            message += "\n".join([f"`{url}`" for url in logos])
 
         await update.callback_query.message.reply_text(
             text=message,
@@ -158,7 +158,7 @@ async def handle_error(update: Update, error: Exception):
     """Handle errors and send user-friendly message."""
     error_trace = traceback.format_exc()
     logger.error(f"Error occurred: {error}\n{error_trace}")
-    
+
     if update.callback_query:
         await update.callback_query.message.reply_text(
             "⚠️ An error occurred while processing your request. Please try again later."
