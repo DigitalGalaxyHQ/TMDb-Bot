@@ -1,142 +1,51 @@
-from telegram import (
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-    Update,
-    InlineQueryResultArticle,
-    InputTextMessageContent,
-    InlineQueryResultPhoto
-)
-from telegram.ext import (
-    CommandHandler,
-    CallbackQueryHandler,
-    ContextTypes,
-    MessageHandler,
-    InlineQueryHandler,
-    filters
-)
-from tmdb_api import search_tmdb, get_media_details, get_poster_urls, get_logo_url
-import logging
-import uuid
+from telegram import Update, InputMediaPhoto
+from telegram.ext import CommandHandler, ContextTypes
+import requests
+from config import TMDB_API_KEY
 
-logger = logging.getLogger(__name__)
+async def tmdb_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not context.args:
+        await update.message.reply_text("Please provide a movie or series name. Example:\n/tmdb Avengers Endgame")
+        return
+
+    query = " ".join(context.args)
+    search_url = f"https://api.themoviedb.org/3/search/multi?api_key={TMDB_API_KEY}&query={query}"
+    response = requests.get(search_url).json()
+
+    if not response.get("results"):
+        await update.message.reply_text("No results found.")
+        return
+
+    # Pick first result
+    item = response["results"][0]
+    item_id = item["id"]
+    media_type = item.get("media_type", "movie")
+
+    # Get images (poster, backdrop, logo)
+    images_url = f"https://api.themoviedb.org/3/{media_type}/{item_id}/images?api_key={TMDB_API_KEY}"
+    images = requests.get(images_url).json()
+
+    poster_path = images["posters"][0]["file_path"] if images.get("posters") else None
+    backdrop_path = images["backdrops"][0]["file_path"] if images.get("backdrops") else None
+    logo_path = images["logos"][0]["file_path"] if images.get("logos") else None
+
+    base_url = "https://image.tmdb.org/t/p/original"
+
+    photos = []
+    if poster_path:
+        photos.append(InputMediaPhoto(base_url + poster_path))
+    if backdrop_path:
+        photos.append(InputMediaPhoto(base_url + backdrop_path))
+    if logo_path:
+        photos.append(InputMediaPhoto(base_url + logo_path))
+
+    if not photos:
+        await update.message.reply_text("Images not found for this title.")
+        return
+
+    # Send as album with caption
+    photos[0].caption = item.get("title") or item.get("name") or "Unknown Title"
+    await update.message.reply_media_group(media=photos)
 
 def setup_handlers(application):
-    """Register all bot handlers."""
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", help_command))
-    application.add_handler(CommandHandler("tmdb", tmdb_search))
-    application.add_handler(CallbackQueryHandler(handle_button_press))
-    application.add_handler(InlineQueryHandler(inline_search))   # 🔥 Inline mode
-    application.add_error_handler(error_handler)
-
-# ──────────────────────────────── BASIC COMMANDS ────────────────────────────────
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        "🎬 *Welcome to TMDB Bot!* \n\n"
-        "Type `/tmdb <movie or series name>` to search.\n"
-        "Or use me inline anywhere like:\n"
-        "`@YourBotUsername Interstellar`",
-        parse_mode="Markdown"
-    )
-
-async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        "🆘 *Help Menu*\n\n"
-        "Commands:\n"
-        "/tmdb <query> – Search TMDB\n"
-        "/help – This message\n\n"
-        "You can also use me inline by typing:\n"
-        "`@YourBotUsername Avengers`",
-        parse_mode="Markdown"
-    )
-
-# ──────────────────────────────── SEARCH HANDLER ────────────────────────────────
-async def tmdb_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = " ".join(context.args)
-    if not query:
-        await update.message.reply_text("⚠️ Please provide a movie or TV show name.")
-        return
-
-    results = search_tmdb(query)
-    if not results:
-        await update.message.reply_text("❌ No results found.")
-        return
-
-    buttons = []
-    for r in results[:5]:
-        title = r.get("title") or r.get("name")
-        media_type = r.get("media_type", "movie")
-        buttons.append([
-            InlineKeyboardButton(title, callback_data=f"{media_type}:{r['id']}")
-        ])
-
-    await update.message.reply_text(
-        f"🔍 Results for *{query}*:",
-        parse_mode="Markdown",
-        reply_markup=InlineKeyboardMarkup(buttons)
-    )
-
-# ──────────────────────────────── CALLBACK HANDLER ────────────────────────────────
-async def handle_button_press(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-
-    media_type, tmdb_id = query.data.split(":")
-    details = get_media_details(tmdb_id, media_type)
-    title = details.get("title") or details.get("name")
-    overview = details.get("overview", "No description available.")
-    poster_data = get_poster_urls(tmdb_id, media_type)
-    poster_path = None
-
-    if poster_data.get("posters"):
-        poster_path = poster_data["posters"][0]["file_path"]
-
-    text = f"*{title}*\n\n_{overview}_"
-    if poster_path:
-        image_url = f"https://image.tmdb.org/t/p/w500{poster_path}"
-        await query.message.reply_photo(photo=image_url, caption=text, parse_mode="Markdown")
-    else:
-        await query.message.reply_text(text, parse_mode="Markdown")
-
-# ──────────────────────────────── INLINE MODE 🔥 ────────────────────────────────
-async def inline_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.inline_query.query.strip()
-    if not query:
-        return
-    results = search_tmdb(query)
-    articles = []
-
-    for item in results[:15]:
-        title = item.get("title") or item.get("name")
-        overview = item.get("overview", "")[:150]
-        media_type = item.get("media_type", "movie")
-        logo_url = get_logo_url(item.get("id"), media_type)
-
-        if logo_url:
-            articles.append(
-                InlineQueryResultPhoto(
-                    id=str(uuid.uuid4()),
-                    photo_url=logo_url,
-                    thumb_url=logo_url,
-                    caption=f"🎬 *{title}*\n_{overview}_",
-                    parse_mode="Markdown"
-                )
-            )
-        else:
-            articles.append(
-                InlineQueryResultArticle(
-                    id=str(uuid.uuid4()),
-                    title=title,
-                    description=overview,
-                    input_message_content=InputTextMessageContent(
-                        message_text=f"🎬 *{title}*\n{overview}",
-                        parse_mode="Markdown"
-                    )
-                )
-            )
-
-    await update.inline_query.answer(articles, cache_time=1)
-
-# ──────────────────────────────── ERROR LOGGER ────────────────────────────────
-async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
-    logger.error("Exception while handling update:", exc_info=context.error)
+    application.add_handler(CommandHandler("tmdb", tmdb_command))
