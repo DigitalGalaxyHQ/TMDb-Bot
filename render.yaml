@@ -1,6 +1,0 @@
-services:
-  - type: web
-    name: tmdb-telegram-bot
-    env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: python -m bot.main
