@@ -1,63 +1,107 @@
-# 🎬 TMDB Telegram Bot
+# 🌌 **DigitalGalaxyHQ™ – TMDb Movie & Series Poster Bot**
 
-A Telegram bot that searches TMDB and displays movie/TV show posters in landscape and portrait formats.
+A next-gen Telegram bot by **DigitalGalaxyHQ** that lets you explore your favorite movies and TV shows directly from **The Movie Database (TMDb)**.  
+It delivers **high-quality posters**, **cinematic backdrops**, and **official logos** — all in one stylish view.
 
-[![DigitalGalaxyHQ Channel](https://img.shields.io/badge/Join-TelegramChannel-blue)](https://t.me/DigitalGalaxyHQ)
+---
 
-## ✨ Features
+## 👨‍💻 **Developed & Powered by**
+**DigitalGalaxyHQ**  
+Where entertainment meets innovation ⚡  
 
-- Search for movies and TV shows using `/tmdb` command
-- Display posters in both landscape and portrait formats
-- Support for multiple languages (English and Hindi)
-- Clean interface with emoji indicators
+---
 
-## 🛠️ Setup
+## ✨ **Key Features**
 
-1. Clone this repository
-2. Create a `.env` file based on `.env.example`
-3. Install dependencies: `pip install -r requirements.txt`
-4. Run the bot: `python bot.py`
+- 🔍 **Smart TMDb Search** – Instantly find any movie or TV show.  
+- 🖼 **Visual Display Mode** – Returns **poster**, **landscape backdrop**, and **logo** for every title.  
+- 🌐 **Multilingual Metadata** – Supports English, Hindi, Tamil, Telugu, and Bengali.  
+- 🎛 **Interactive Buttons** – Navigate between posters, cast, and details.  
+- ⚙️ **High-Resolution Images** – Automatically fetches the best available quality.  
+- 🧠 **AI-Enhanced Search** *(Coming Soon)* – Suggests trending or related titles based on your queries.
 
-```bash
-git clone https://github.com/yourusername/tmdb-telegram-bot.git
-cd tmdb-telegram-bot
-cp .env.example .env
+---
+
+## 🔧 **Configuration**
+
+### 🎬 **Get Your TMDb API Key**
+1. Visit [TMDb](https://www.themoviedb.org/).  
+2. Go to your [Account Settings → API](https://www.themoviedb.org/settings/api).  
+3. Request a **Developer API key** (v3 auth).  
+4. Copy your TMDb API key for setup.
+
+### 🤖 **Get Your Telegram Bot Token**
+1. Chat with [@BotFather](https://t.me/BotFather).  
+2. Send `/newbot` and follow the steps.  
+3. Save the token you receive — it’s your bot’s unique access key.
+
+### ⚙️ **Configuration File (`config.py`)**
+Stores:
+- API Keys (from `.env`)
+- TMDb base URLs and image sizes
+- Supported languages  
+
+You can modify it to add new languages or tweak image resolutions.
+
+---
+
+## 🚀 **Setup**
+
+### 🧩 **Local Setup**
+1. Clone this repository:  
+   ```bash
+   git clone https://github.com/DigitalGalaxyHQ/TMDb-Bot.git
+   cd TMDb-Bot
+
+2. Install dependencies:
+
 pip install -r requirements.txt
+
+
+3. Create a .env file with your TMDb and Telegram tokens.
+
+
+4. Run your bot:
+
 python bot.py
-```
 
-## ⌨️ Commands
 
-- `/start` - Show welcome message
-- `/help` - Show help information
-- `/tmdb <query>` - Search for movies/TV shows
 
-## ⚙️ Configuration
+☁️ Deploy to Heroku
 
-Edit `config.py` or `.env` file:
+Click below to deploy directly:
 
-```ini
-TELEGRAM_TOKEN=your_bot_token
-TMDB_API_KEY=your_tmdb_api_key
-```
 
-## 🚀 Deployment
 
-### Render.com (Recommended)
-- Set start command: `python bot.py`
-- Web Service type
-- Port: 8080
+For advanced deployment steps, see DEPLOYMENT.md.
 
-### Other Platforms:
-- **Docker**: `docker build -t tmdb-bot . && docker run tmdb-bot`
-- **Systemd**: Create a service file with `ExecStart=python /path/to/bot.py`
-- **Heroku/AWS**: Set start command to `python bot.py`
 
-## 💙 Credits
+---
 
-**Developed by:** [DigitalGalaxyHQ](https://GitHub.com/DigitalGalaxyHQ)  
-**Official Telegram Channel:** [DigitalGalaxyHQ](https://t.me/DigitalGalaxyHQ)  
+💬 Commands
 
-[![DigitalGalaxyHQ](https://img.shields.io/badge/Join-TelegramChannel-blue)](https://t.me/DigitalGalaxyHQ)
-```
- 
+Command	Description
+
+/start	Displays a welcome message and quick guide
+/tmdb <title>	Search any movie or show and get Poster + Backdrop + Logo
+/trndb <title>	Alternative TMDb search command
+
+
+
+---
+
+🪄 Coming Soon
+
+🎥 Instant trailer preview buttons
+
+🧩 Genre-based auto-recommendations
+
+🔗 Telegram-to-TMDb profile linking
+
+
+
+---
+
+📜 License
+
+Maintained under @DigitalGalaxyHQ
