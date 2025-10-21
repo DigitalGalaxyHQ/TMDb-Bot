@@ -1,41 +1,74 @@
 import requests
-from config import TMDB_API_KEY, TMDB_BASE_URL, TMDB_IMAGE_BASE_URL
+import logging
+from config import TMDB_API_KEY, TMDB_API_BASE_URL, TMDB_IMAGE_BASE_URL, POSTER_SIZES, BACKDROP_SIZES, LOGO_SIZES
 
-def search_tmdb(query: str) -> list:
-    """Search TMDB for movies and TV shows."""
-    search_url = f"{TMDB_BASE_URL}/search/multi?api_key={TMDB_API_KEY}&query={query}&language=en-US"
-    response = requests.get(search_url)
-    if response.status_code != 200:
-        return []
-    return response.json().get("results", [])
+# Set up logger
+logger = logging.getLogger(__name__)
 
-def get_media_details(tmdb_id: str, media_type: str) -> dict:
-    """Get details for a specific movie or TV show."""
-    if media_type == "movie":
-        details_url = f"{TMDB_BASE_URL}/movie/{tmdb_id}?api_key={TMDB_API_KEY}&language=en-US"
-    else:
-        details_url = f"{TMDB_BASE_URL}/tv/{tmdb_id}?api_key={TMDB_API_KEY}&language=en-US"
-    response = requests.get(details_url)
-    if response.status_code != 200:
-        return {}
-    return response.json()
-
-def get_poster_urls(tmdb_id: str, media_type: str) -> dict:
-    """Get all available poster images."""
-    url = f"{TMDB_BASE_URL}/{media_type}/{tmdb_id}/images?api_key={TMDB_API_KEY}"
-    response = requests.get(url)
-    if response.status_code != 200:
-        return {}
-    return response.json()
-
-def get_logo_url(tmdb_id: str, media_type: str) -> str:
-    """Fetch the official logo image (if available) from TMDB."""
-    url = f"{TMDB_BASE_URL}/{media_type}/{tmdb_id}/images?api_key={TMDB_API_KEY}&include_image_language=en,null"
-    response = requests.get(url)
-    if response.status_code != 200:
-        return None
-    data = response.json()
-    logos = data.get("logos") or []
-    if logos:
-        return f"{TMDB_IMAGE_BASE_URL}{logos[0]['file_path']}"
-    return None
+class TMDbAPI:
+    def __init__(self):
+        self.api_key = TMDB_API_KEY
+        self.base_url = TMDB_API_BASE_URL
+        self.image_base_url = TMDB_IMAGE_BASE_URL
+    
+    def search_multi(self, query, language="en-US", page=1):
+        """Search for movies, TV shows, and people in a single request"""
+        endpoint = f"{self.base_url}/search/multi"
+        params = {
+            "api_key": self.api_key,
+            "query": query,
+            "language": language,
+            "page": page,
+            "include_adult": False
+        }
+        
+        try:
+            response = requests.get(endpoint, params=params, timeout=10)
+            return response.json() if response.status_code == 200 else None
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error searching TMDb: {e}")
+            return None
+    
+    def get_details(self, media_type, media_id, language="en-US"):
+        """Get detailed information about a specific movie or TV show"""
+        if media_type not in ["movie", "tv"]:
+            return None
+            
+        endpoint = f"{self.base_url}/{media_type}/{media_id}"
+        params = {
+            "api_key": self.api_key,
+            "language": language,
+            "append_to_response": "images",
+            "include_image_language": "en,hi,ta,te,bn,null"  # Include images in all supported languages
+        }
+        
+        try:
+            response = requests.get(endpoint, params=params, timeout=10)
+            return response.json() if response.status_code == 200 else None
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error getting details from TMDb: {e}")
+            return None
+    
+    def get_poster_url(self, poster_path, size="medium"):
+        """Generate poster URL from poster path"""
+        if not poster_path:
+            return None
+            
+        size_key = POSTER_SIZES.get(size, "medium")
+        return f"{self.image_base_url}/{size_key}{poster_path}"
+    
+    def get_backdrop_url(self, backdrop_path, size="medium"):
+        """Generate backdrop URL from backdrop path"""
+        if not backdrop_path:
+            return None
+            
+        size_key = BACKDROP_SIZES.get(size, "medium")
+        return f"{self.image_base_url}/{size_key}{backdrop_path}"
+        
+    def get_logo_url(self, logo_path, size="medium"):
+        """Generate logo URL from logo path"""
+        if not logo_path:
+            return None
+            
+        size_key = LOGO_SIZES.get(size, "medium")
+        return f"{self.image_base_url}/{size_key}{logo_path}"
