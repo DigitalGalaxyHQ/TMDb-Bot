@@ -23,8 +23,8 @@ import os
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
 # Start polling
-updater.start_polling()
-updater.idle()
+Updater.start_polling()
+Updater.idle()
 
 # Enable logging
 logging.basicConfig(
