@@ -22,10 +22,6 @@ threading.Thread(target=run_flask).start()
 import os
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
-# Start polling
-Updater.start_polling()
-Updater.idle()
-
 # Enable logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
