@@ -5,7 +5,6 @@ from config import TELEGRAM_BOT_TOKEN
 from tmdb_api import TMDbAPI
 import threading
 from flask import Flask
-from telegram.ext import Updater, CommandHandler
 
 # --- Flask section for Render ---
 app = Flask(__name__)
