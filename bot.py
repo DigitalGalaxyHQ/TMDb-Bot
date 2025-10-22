@@ -19,7 +19,8 @@ def run_flask():
 threading.Thread(target=run_flask).start()
 
 # --- Telegram Bot Section ---
-TOKEN = "TELEGRAM_BOT_TOKEN"
+import os
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
 def start(update, context):
     update.message.reply_text("Hello! Bot is alive and kicking 🔥")
