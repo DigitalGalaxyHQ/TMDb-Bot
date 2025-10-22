@@ -22,16 +22,6 @@ threading.Thread(target=run_flask).start()
 import os
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
-def start(update, context):
-    update.message.reply_text("Hello! Bot is alive and kicking 🔥")
-
-updater = Updater(TOKEN)
-dp = updater.dispatcher
-dp.add_handler(CommandHandler("start", start))
-
-updater.start_polling()
-updater.idle()
-
 # Enable logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
