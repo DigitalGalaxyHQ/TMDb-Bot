@@ -3,6 +3,34 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext, MessageHandler, Filters
 from config import TELEGRAM_BOT_TOKEN
 from tmdb_api import TMDbAPI
+import threading
+from flask import Flask
+from telegram.ext import Updater, CommandHandler
+
+# --- Flask section for Render ---
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "✅ Telegram Bot is running on Render!"
+
+def run_flask():
+    app.run(host='0.0.0.0', port=10000)
+
+threading.Thread(target=run_flask).start()
+
+# --- Telegram Bot Section ---
+TOKEN = "TELEGRAM_BOT_TOKEN"
+
+def start(update, context):
+    update.message.reply_text("Hello! Bot is alive and kicking 🔥")
+
+updater = Updater(TOKEN)
+dp = updater.dispatcher
+dp.add_handler(CommandHandler("start", start))
+
+updater.start_polling()
+updater.idle()
 
 # Enable logging
 logging.basicConfig(
